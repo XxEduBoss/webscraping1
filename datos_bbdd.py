@@ -8,18 +8,18 @@ def insertar_datos():
 
     conexion = bbdd.connect(host="localhost",
                             port=3306,
-                            database="webscraping",
+                            database="transfermarkt",
                             user="root",
                             password="1234",
                             autocommit=True)
 
     cursor = conexion.cursor()
 
-    cursor.execute("delete from webscraping where id is not null")
+    cursor.execute("delete from perros where id is not null")
 
-    cursor.execute("alter table webscraping auto_increment=1")
+    cursor.execute("alter table perros auto_increment=1")
 
-    script_insert ="insert into webscraping (imagen, nombre, precio, marca)" "values (%s, %s, %s, %s)"
+    script_insert ="insert into perros (imagen, nombre, precio, marca)" "values (%s, %s, %s, %s)"
 
     for perro in lista_perros:
 
@@ -36,7 +36,7 @@ def consultar_datos():
     #Abrir conexión
     conexion = bbdd.connect(host="localhost",
                             port=3306,
-                            database="webscraping",
+                            database="transfermarkt",
                             user="root",
                             password="1234",
                             autocommit=True)
@@ -48,7 +48,7 @@ def consultar_datos():
     cursor = conexion.cursor()
 
     #Script de bd
-    consulta = "select * from webscraping"
+    consulta = "select * from perros"
 
     #Ejecuta la consulta
     cursor.execute(consulta)
