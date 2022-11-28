@@ -1,3 +1,4 @@
+from datos_bbdd import *
 from kivymd.app import MDApp
 from kivymd.uix.label import MDLabel
 from kivymd.uix.screen import Screen
@@ -7,12 +8,14 @@ from kivy.uix.gridlayout import GridLayout
 from kivymd.uix.datatables import MDDataTable
 from kivymd.uix.textfield import MDTextField
 from kivy.metrics import dp
-from datos_bbdd import *
-from kivy.uix.textinput import TextInput
 
 
 
-def cargar_datos_tabla(tabla):
+
+
+
+def mostrar_datos_tabla(tabla):
+
 
     # Cargar los datos
     lista_perros = consultar_datos()
@@ -23,13 +26,11 @@ def cargar_datos_tabla(tabla):
 
 
 
-def cargar_formulario(ventana, panel3):
+def cargar_formulario(panel3):
 
     panel3.clear_widgets()
 
-    formulario = GridLayout(cols=1, rows=4, padding=20, spacing=35)
-
-    título = MDLabel(text="Hola")
+    formulario = GridLayout(cols=1, rows=4, padding=30, spacing=30)
 
     input_nombre = MDTextField(hint_text="Nombre", mode="round", max_text_length=100, helper_text="Ingrese el nombre del pienso")
 
@@ -37,11 +38,50 @@ def cargar_formulario(ventana, panel3):
 
     input_marca = MDTextField(hint_text="Marca", mode="round", max_text_length=100, helper_text="Ingrese la marca del pienso")
 
-    formulario.add_widget(título)
     formulario.add_widget(input_nombre)
     formulario.add_widget(input_precio)
     formulario.add_widget(input_marca)
     panel3.add_widget(formulario)
+
+
+
+def guardar_en_bbdd(formulario):
+
+    nuevo_pienso = dict()
+
+    nuevo_pienso["nombre"] = formulario.children[0].children[2].text
+    nuevo_pienso["precio"] = formulario.children[0].children[1].text
+    nuevo_pienso["marca"] = formulario.children[0].children[0].text
+
+
+    #Llamar al método -> insertar (nuevo_pienso)
+    insertar_dato_nuevo(nuevo_pienso)
+
+
+
+def insertar_dato_nuevo( nuevo_pienso):
+
+
+
+    conexion = bbdd.connect(host="localhost",
+                            port=3306,
+                            database="transfermarkt",
+                            user="root",
+                            password="1234",
+                            autocommit=True)
+
+    cursor = conexion.cursor()
+
+    script_insert ="insert into perros (imagen, nombre, precio, marca)" "values (%s, %s, %s, %s)"
+
+
+
+    cursor.execute(script_insert, ("https://sinimagen.es",
+                                   nuevo_pienso["nombre"],
+                                   nuevo_pienso["precio"],
+                                   nuevo_pienso["marca"]))
+
+    print("Nuevo pienso insertado con éxito")
 
 
 
@@ -51,6 +91,7 @@ class Aplicacion(MDApp):
     def build(self):
 
         self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "Yellow"
 
 
         ventana = Screen(name="Pienso Perros")
@@ -97,13 +138,13 @@ class Aplicacion(MDApp):
         boton1.bind(on_press=lambda a: insertar_datos())
 
         boton2 = Button(text="Mostrar", background_color=(1, 1, 0, 1), color=(1, 2, 0, 2))
-        boton2.bind(on_press=lambda a: cargar_datos_tabla(tabla))
+        boton2.bind(on_press=lambda a: mostrar_datos_tabla(tabla))
 
         boton3 = Button(text="Nuevo", background_color=(1, 1, 0, 1), color=(1, 2, 0, 2))
-        boton3.bind(on_press=lambda a: cargar_formulario(ventana, panel3))
+        boton3.bind(on_press=lambda a: cargar_formulario(panel3))
 
-        boton4 = Button(text="Eliminar", background_color=(1, 1, 0, 1), color=(1, 2, 0, 2))
-        boton4.bind()
+        boton4 = Button(text="Guardar", background_color=(1, 1, 0, 1), color=(1, 2, 0, 2))
+        boton4.bind(on_press=lambda a: guardar_en_bbdd(panel3))
 
 
 
